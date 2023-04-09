@@ -5,6 +5,5 @@
 
 struct Game_State {
   Snake snake;
-  Input input;
-  Vec2<s32> food_position;
+  Vec2<f32> food_position;
 };

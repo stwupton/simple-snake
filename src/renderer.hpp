@@ -7,6 +7,8 @@
 #include "settings.hpp"
 #include "array.hpp"
 
+#define LERP_SNAKE_POSITION false
+
 // Using dedicated GPU
 // https://stackoverflow.com/questions/68469954/how-to-choose-specific-gpu-when-create-opengl-context
 extern "C" {
@@ -42,7 +44,7 @@ void draw_rect(
   glEnd();
 }
 
-void fill_cell(const Vec2<s32> &cell, const Rgb &colour, const Settings &settings) {
+void fill_cell(const Vec2<f32> &cell, const Rgb &colour, const Settings &settings) {
   const u32 cell_width = settings.cell_width();
   const u32 cell_height = settings.cell_height();
 
@@ -56,21 +58,40 @@ void fill_cell(const Vec2<s32> &cell, const Rgb &colour, const Settings &setting
   );
 }
 
-void draw_snake_part(const Vec2<s32> &part, const Settings &settings) {
+void draw_snake_part(const Vec2<f32> &part, const Settings &settings) {
   fill_cell(part, Rgb(1.f, 0.85f, 0.56f), settings);  
 }
 
-void draw_food(const Vec2<s32> &food, const Settings &settings) {
+void draw_food(const Vec2<f32> &food, const Settings &settings) {
   fill_cell(food, Rgb(0.85f, 0.23f, 0.23f), settings);
 }
 
-void render(SDL_Window *window, const Game_State &state, const Settings &settings) {
+template<typename T>
+T lerp(T a, T b, f32 alpha) {
+  alpha = fmin(1.0f, fmax(0.0f, alpha));
+  return a * (1.0f - alpha) + b * alpha;
+}
+
+void render(
+  SDL_Window *window, 
+  const Game_State &previous_state, 
+  const Game_State &state, 
+  f32 alpha,
+  const Settings &settings
+) {
   glViewport(0, 0, settings.screen_width, settings.screen_height);
   glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
 
   draw_rect(0, 0, 1920, 1080, 0.f, 0.6f, 0.74f, settings);
-  for (const Vec2<s32> part : state.snake.positions) {
+  for (size_t i = 0; i < state.snake.positions.length; i++) {
+#if LERP_SNAKE_POSITION
+    const Vec2<f32> previous_position = previous_state.snake.positions[i];
+    const Vec2<f32> current_position = state.snake.positions[i];
+    const Vec2<f32> part = lerp(previous_position, current_position, alpha); 
+#else 
+    const Vec2<f32> part = state.snake.positions[i];
+#endif
     draw_snake_part(part, settings);
   }
 

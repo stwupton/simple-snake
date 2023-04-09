@@ -51,8 +51,11 @@ int main(int argc, char *arg[]) {
   settings.grid_height = GRID_HEIGHT;
   settings.sim_time_ms = SIM_TIME_MS;
 
+  Input input;
+
+  Game_State *previous_state = new Game_State();
   Game_State *state = new Game_State();
-  start_game(state, settings);
+  start_game(state, &input, settings);
 
   Snake &snake = state->snake;
 
@@ -74,19 +77,19 @@ int main(int argc, char *arg[]) {
 
           case SDLK_LEFT:
           case SDLK_a:
-            state->input.input_direction({ -1, 0 });
+            input.set_direction({ -1, 0 });
             break;
           case SDLK_RIGHT:
           case SDLK_d:
-            state->input.input_direction({ 1, 0 });
+            input.set_direction({ 1, 0 });
             break;
           case SDLK_UP:
           case SDLK_w:
-            state->input.input_direction({ 0, -1 });
+            input.set_direction({ 0, -1 });
             break;
           case SDLK_DOWN:
           case SDLK_s:
-            state->input.input_direction({ 0, 1 });
+            input.set_direction({ 0, 1 });
             break;
 
           case SDLK_EQUALS:
@@ -106,10 +109,12 @@ int main(int argc, char *arg[]) {
 
     while (time_accumulator >= SIM_TIME_MS) {
       time_accumulator -= SIM_TIME_MS;
-      simulate(state, settings);
+      *previous_state = *state;
+      *state = simulate(*state, &input, settings);
     }
 
-    render(window, *state, settings);
+    const f32 alpha = time_accumulator / SIM_TIME_MS;
+    render(window, *previous_state, *state, alpha, settings);
   }
 
   SDL_Quit();

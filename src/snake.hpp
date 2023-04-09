@@ -5,9 +5,9 @@
 
 struct Snake {
   bool dead = false;
-  Vec2<s32> direction;
-  Vec2<s32> previous_direction;
-  Array<Vec2<s32>, 256> positions;
+  Vec2<f32> direction;
+  Vec2<f32> previous_direction;
+  Array<Vec2<f32>, 256> positions;
 
   void reset() {
     this->dead = false;

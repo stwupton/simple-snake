@@ -7,8 +7,8 @@ struct Input {
   bool input_handled = true;
   bool input_queued = false;
 
-  Vec2<s32> direction;
-  Vec2<s32> queued_direction;
+  Vec2<f32> direction;
+  Vec2<f32> queued_direction;
 
   void reset() {
     this->input_handled = true;
@@ -18,7 +18,7 @@ struct Input {
     this->queued_direction = {};
   }
 
-  void input_direction(Vec2<s32> direction) {
+  void set_direction(Vec2<f32> direction) {
     direction.x = fmax(-1, fmin(direction.x, 1));
     direction.y = fmax(-1, fmin(direction.y, 1));
 
@@ -31,8 +31,8 @@ struct Input {
     }
   }
 
-  Vec2<s32> consume_direction() {
-    const Vec2<s32> direction = this->direction;
+  Vec2<f32> consume_direction() {
+    const Vec2<f32> direction = this->direction;
     if (this->input_queued) {
       this->direction = this->queued_direction;
       this->input_queued = false;
