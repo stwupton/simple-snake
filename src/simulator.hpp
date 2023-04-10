@@ -4,11 +4,8 @@
 #include "settings.hpp"
 
 void correct_grid_position(Vec2<f32> *position, const Settings &settings) {
-  while (position->x < 0) position->x += settings.grid_width;
-  while (position->y < 0) position->y += settings.grid_height;
-
-  position->x = fmod(position->x, settings.grid_width);
-  position->y = fmod(position->y, settings.grid_height);
+  position->x = fabs(fmod(settings.grid_width + position->x, settings.grid_width));
+  position->y = fabs(fmod(settings.grid_height + position->y, settings.grid_height));
 }
 
 void start_game(Game_State *state, Input *input, const Settings &settings) {
